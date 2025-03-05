@@ -32,7 +32,7 @@ export async function POST(request: Request) {
 
     const tips = completion.choices[0].message.content;
     return NextResponse.json({ tips });
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof Error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
