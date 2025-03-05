@@ -6,8 +6,8 @@ import { authOptions } from '../../auth/auth-options';
 const prisma = new PrismaClient();
 
 export async function PATCH(
-  req: Request,
-  { params }: { params: { id: string } }
+  request: Request,
+  context: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -18,7 +18,7 @@ export async function PATCH(
       );
     }
 
-    const { completed } = await req.json();
+    const { completed } = await request.json();
     if (typeof completed !== 'boolean') {
       return NextResponse.json(
         { error: 'Completed status is required' },
@@ -38,7 +38,7 @@ export async function PATCH(
     }
 
     const todo = await prisma.todo.findUnique({
-      where: { id: params.id }
+      where: { id: context.params.id }
     });
 
     if (!todo || todo.userId !== user.id) {
@@ -49,7 +49,7 @@ export async function PATCH(
     }
 
     const updatedTodo = await prisma.todo.update({
-      where: { id: params.id },
+      where: { id: context.params.id },
       data: { completed }
     });
 
@@ -64,8 +64,8 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
+  request: Request,
+  context: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -88,7 +88,7 @@ export async function DELETE(
     }
 
     const todo = await prisma.todo.findUnique({
-      where: { id: params.id }
+      where: { id: context.params.id }
     });
 
     if (!todo || todo.userId !== user.id) {
@@ -99,7 +99,7 @@ export async function DELETE(
     }
 
     await prisma.todo.delete({
-      where: { id: params.id }
+      where: { id: context.params.id }
     });
 
     return NextResponse.json({ success: true });
