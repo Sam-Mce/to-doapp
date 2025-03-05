@@ -1,5 +1,4 @@
 import { withAuth } from "next-auth/middleware";
-import { NextResponse } from "next/server";
 
 declare module "next-auth/jwt" {
   interface JWT {
@@ -12,29 +11,16 @@ declare module "next-auth/jwt" {
 }
 
 export default withAuth(
-  function middleware(req) {
-    return NextResponse.next();
+  function middleware() {
+    // Your middleware logic here if needed
   },
   {
     callbacks: {
       authorized: ({ token }) => !!token
     },
-    pages: {
-      signIn: '/auth/signin'
-    }
   }
 );
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api/auth (auth API routes)
-     * - auth (auth pages)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    '/((?!api/auth|auth|_next/static|_next/image|favicon.ico).*)',
-  ],
+  matcher: ["/api/todos/:path*", "/api/tips/:path*"]
 }; 

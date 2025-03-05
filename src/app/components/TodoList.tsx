@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { motion } from 'framer-motion';
 import Todo from './Todo';
@@ -20,13 +20,31 @@ export default function TodoList() {
   const { data: session } = useSession();
   const [todos, setTodos] = useState<TodoItem[]>([]);
   const [newTodo, setNewTodo] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
   const [category, setCategory] = useState('other');
   const [filter, setFilter] = useState<FilterType>('active');
-  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchTodos = useCallback(async () => {
+    if (!session?.user?.email) return;
+    
+    try {
+      const response = await fetch('/api/todos');
+      const data = await response.json();
+      if (data.todos) {
+        setTodos(data.todos);
+      }
+    } catch (error) {
+      console.error('Error fetching todos:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [session?.user?.email]);
 
   useEffect(() => {
-    fetchTodos();
-  }, [session]);
+    if (session?.user?.email) {
+      fetchTodos();
+    }
+  }, [session?.user?.email, fetchTodos]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -42,22 +60,6 @@ export default function TodoList() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
-
-  const fetchTodos = async () => {
-    if (!session?.user?.email) return;
-    
-    try {
-      const response = await fetch('/api/todos');
-      const data = await response.json();
-      if (data.todos) {
-        setTodos(data.todos);
-      }
-    } catch (error) {
-      console.error('Error fetching todos:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const addTodo = async (e: React.FormEvent) => {
     e.preventDefault();
