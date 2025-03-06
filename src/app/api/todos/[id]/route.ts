@@ -6,7 +6,7 @@ import { authOptions } from '../../auth/auth-options';
 const prisma = new PrismaClient();
 
 export async function PATCH(
-  req: Request,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -18,7 +18,7 @@ export async function PATCH(
       );
     }
 
-    const { completed } = await req.json();
+    const { completed } = await request.json();
     if (typeof completed !== 'boolean') {
       return NextResponse.json(
         { error: 'Completed status is required' },
@@ -64,7 +64,7 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  req: Request,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
